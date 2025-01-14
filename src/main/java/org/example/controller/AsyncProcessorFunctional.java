@@ -1,35 +1,16 @@
 package org.example.controller;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import reactor.core.publisher.Mono;
+import java.time.Duration;
 
 public class AsyncProcessorFunctional {
-    private ExecutorService executorService;
-
-    public AsyncProcessorFunctional() {
-        executorService = Executors.newSingleThreadExecutor();
-    }
-
-    public void processAsync(Consumer<String> onComplete, Consumer<Exception> onError) {
-        executorService.submit(() -> {
-            try {
-                // Simular un proceso asincrónico
-                Thread.sleep(2000);
-
-                // Simular error en el proceso
-                //int valNumber = Integer.parseInt("Hola");
-                // Simular que el proceso ha completado
-                String result = "Proceso completado exitosamente.";
-                onComplete.accept(result);
-            } catch (Exception e) {
-                onError.accept(e);
-            }
-        });
-    }
-
-    public void shutdown() {
-        executorService.shutdown();
+    public Mono<String> processAsync() {
+        return Mono.fromCallable(() -> {
+                    // Simular un proceso asincrónico
+                    Thread.sleep(2000);
+                    // Simular que el proceso ha completado
+                    return "Proceso completado exitosamente.";
+                }).delayElement(Duration.ofSeconds(2))
+                .onErrorResume(e -> Mono.error(new RuntimeException("Error en el proceso", e)));
     }
 }
